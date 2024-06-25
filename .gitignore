@@ -1,0 +1,6 @@
+fastApi/Scripts
+fastApi/share
+fastApi/app/__pycache__
+fastApi/pyvenv.cfg
+fastApi/.env
+redis.conf
