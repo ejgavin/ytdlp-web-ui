@@ -1,11 +1,16 @@
 import React, { useRef, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setVideoUrl, setVideObj, setVideoLoading } from "../state/videoSlice";
+import disableHandle from "../functions/disableHandle";
 
-function VideoFormats({ allUrls, setVideoUrl, setVideObj, setVideoLoading, disableHandle, videoReady  }) {
+function VideoFormats() {
+  const dispatch = useDispatch();
+  const { allUrls, videoReady } = useSelector((state) => state.video);
+
   const selectRef = useRef(null);
   const audioSelectRef = useRef(null);
-
   function optionsToUrl(type) {
-    setVideoLoading(true)
+    dispatch(setVideoLoading(true));
     const selectedFormatId = selectRef.current.value;
     const audioSelectRefFormatId = audioSelectRef.current.value;
     let optObj;
@@ -19,6 +24,7 @@ function VideoFormats({ allUrls, setVideoUrl, setVideObj, setVideoLoading, disab
 
     if (!optObj) {
       console.error("Selected format not found in allUrls");
+      dispatch(setVideoLoading(false));
       return;
     }
 
@@ -27,11 +33,11 @@ function VideoFormats({ allUrls, setVideoUrl, setVideObj, setVideoLoading, disab
         ? optObj.manifest_url
         : optObj.url;
 
-      setVideoUrl(manifestUrl);
-      setVideObj(optObj);
+      dispatch(setVideoUrl(manifestUrl));
+      dispatch(setVideObj(optObj));
     } else {
-      setVideoUrl(optObj.url);
-      setVideObj(optObj);
+      dispatch(setVideoUrl(optObj.url));
+      dispatch(setVideObj(optObj));
     }
   }
 
@@ -68,19 +74,13 @@ function VideoFormats({ allUrls, setVideoUrl, setVideObj, setVideoLoading, disab
     });
   }
 
-
-
   useEffect(() => {
-    if(videoReady){
-      disableHandle([selectRef,audioSelectRef], false)
-    }else if(videoReady == false){
-      disableHandle([selectRef,audioSelectRef], true)
+    if (videoReady) {
+      disableHandle([selectRef, audioSelectRef], false);
+    } else if (videoReady == false) {
+      disableHandle([selectRef, audioSelectRef], true);
     }
-
   }, [videoReady]);
-
-
-
 
   return (
     <div className="flex flex-row gap-2 justify-center md:w-160 w-80">

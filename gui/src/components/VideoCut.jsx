@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { FaBackward } from "react-icons/fa";
 import {
   IoChevronBack,
@@ -6,18 +7,15 @@ import {
   IoPlayForward,
 } from "react-icons/io5";
 import Error from "./Error";
-
-function VideoCut({
-  videoRef,
+import downloadVideo from "../hooks/downloadVideo";
+import {
+  setCurrentTime,
   setPlaying,
-  downloadVideo,
-  videObj,
-  videoPlaying,
-  duration,
-  disableHandle,
-  videoReady,
-  handleDownload
-}) {
+  setError,
+  setErrorDuration,
+} from "../state/videoSlice";
+
+function VideoCut({ videoRef, disableHandle, handleDownload }) {
   const inputRef = useRef(null);
   const startInputRef = useRef(null);
   const endInputRef = useRef(null);
@@ -29,29 +27,54 @@ function VideoCut({
   const prewievBtn = useRef(null);
   const startBtn = useRef(null);
   const endBtn = useRef(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [error, setError] = useState(null);
-  const [errorDuration, setErrorDuration] = useState(3000);
+
+  const dispatch = useDispatch();
+  const { videObj, videoReady, currentTime, duration, error } = useSelector(
+    (state) => state.video
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (videoRef.current && videoPlaying) {
+      if (videoRef.current && videoReady) {
         const currentTime = videoRef.current.getCurrentTime();
-        setCurrentTime(currentTime);
+        dispatch(setCurrentTime(currentTime));
         inputRef.current.value = currentTime.toFixed(2);
       }
     }, 10);
 
     return () => clearInterval(interval);
-  }, [videoRef, videoPlaying]);
+  }, [videoReady]);
 
   useEffect(() => {
-    if(videoReady){
-      disableHandle([backwardRef,smBackwardRef,smForwardRef,forwardRef,downloadClipBtn,prewievBtn, startBtn, endBtn], false)
-    }else if(videoReady == false){
-      disableHandle([backwardRef,smBackwardRef,smForwardRef,forwardRef,downloadClipBtn,prewievBtn, startBtn, endBtn], true)
+    if (videoReady) {
+      disableHandle(
+        [
+          backwardRef,
+          smBackwardRef,
+          smForwardRef,
+          forwardRef,
+          downloadClipBtn,
+          prewievBtn,
+          startBtn,
+          endBtn,
+        ],
+        false
+      );
+    } else if (videoReady == false) {
+      disableHandle(
+        [
+          backwardRef,
+          smBackwardRef,
+          smForwardRef,
+          forwardRef,
+          downloadClipBtn,
+          prewievBtn,
+          startBtn,
+          endBtn,
+        ],
+        true
+      );
     }
-
   }, [videoReady]);
 
   function handleCurrent(e) {
@@ -77,7 +100,6 @@ function VideoCut({
     seekTo(currentTime + seekAmount);
   }
 
-
   function cutVideoPreview() {
     if (
       startInputRef.current.value &&
@@ -87,9 +109,9 @@ function VideoCut({
       const seekTo = (sec) => videoRef.current.seekTo(sec);
       const stopTime =
         (endInputRef.current.value - startInputRef.current.value) * 1000;
-      const stopFunc = () => setPlaying(false);
+      const stopFunc = () => dispatch(setPlaying(false));
       seekTo(startInputRef.current.value);
-      setPlaying(true);
+      dispatch(setPlaying(true));
       setTimeout(stopFunc, stopTime);
     }
   }
@@ -97,10 +119,15 @@ function VideoCut({
   function controlTime() {
     if (
       endInputRef.current.value < startInputRef.current.value ||
-      parseFloat(endInputRef.current.value) == parseFloat(startInputRef.current.value)
+      parseFloat(endInputRef.current.value) ==
+        parseFloat(startInputRef.current.value)
     ) {
-      setError("the end second cannot be less than or equal to the start second")
-      setErrorDuration(3000)
+      dispatch(
+        setError(
+          "the end second cannot be less than or equal to the start second"
+        )
+      );
+      dispatch(setErrorDuration(3000));
       return false;
     } else {
       return true;
@@ -198,22 +225,24 @@ function VideoCut({
           ref={downloadClipBtn}
           className="rounded-full text-offwhite-200 border-2 border-solid border-bgray-100 bg-bgray-200 w-full h-16 font-bold hover:bg-opacity-60 active:bg-opacity-50  focus:outline-none disabled:cursor-not-allowed"
           onClick={() =>
-            inputRef.current.value == "" ? false: true && videoReady && controlTime() &&
-            downloadVideo(
-              true,
-              startInputRef.current.value,
-              endInputRef.current.value,
-              videObj
-            )
-            && handleDownload() 
+            inputRef.current.value == ""
+              ? false
+              : true &&
+                videoReady &&
+                controlTime() &&
+                downloadVideo(
+                  true,
+                  startInputRef.current.value,
+                  endInputRef.current.value,
+                  videObj
+                ) &&
+                handleDownload()
           }
         >
           Download Clip
         </button>
       </div>
-      <div>
-        {error && <Error error={error} duration={errorDuration} setError={setError} />}
-      </div>
+      <div>{error && <Error />}</div>
     </div>
   );
 }
