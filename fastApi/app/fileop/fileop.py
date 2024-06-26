@@ -3,8 +3,6 @@ import subprocess
 import urllib.parse
 
 class FileOp:
-    def __init__(self, filepath):
-        self.filepath = filepath
 
     @staticmethod
     def find_largest_file(filepath):

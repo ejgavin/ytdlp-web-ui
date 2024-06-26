@@ -1,16 +1,9 @@
-import os
 import yt_dlp
 import uuid
-import re
 from app.fileop.fileop import FileOp
 import json
 
-
 class Ytdlp:
-    def __init__(self, url):
-        self.url = url
-
-
     @staticmethod
     def get_all_formats_url(url):
         ydl_opts = {
@@ -25,8 +18,7 @@ class Ytdlp:
                 formats = info_dict.get('formats', [])
                 title = info_dict.get('title', 'Unknown Title')
                 video_data = {"all_video_url": formats, "best_quality_video": best_quality_url, "title": title}
-                video_data_string = json.dumps(video_data, indent=4)
-                return video_data_string
+                return json.dumps(video_data, indent=4)
         except Exception as e:
             return {"error": str(e)}
 
@@ -50,7 +42,6 @@ class Ytdlp:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
         
-        print("Unique foldername: ", unique_foldername, ydl_opts)
         return unique_foldername
     
     @staticmethod
@@ -58,5 +49,4 @@ class Ytdlp:
         unique_foldername = Ytdlp.download_video(url,title,resolution,format_id)
         video_path, video_name = FileOp.find_largest_file(unique_foldername)
         cut_video_folder = FileOp.cut_video(video_path, start_sec, end_sec)
-        print(cut_video_folder, video_name)
         return unique_foldername

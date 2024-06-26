@@ -1,9 +1,6 @@
 import re
 
 class Control:
-    def __init__(self, url):
-        self.url = url
-
     @staticmethod
     def is_youtube_search_query_url(url):
         youtube_search_regex = re.compile(

@@ -21,15 +21,10 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-async def get_page():
-    return {"message": "Hoşgeldin"}
-
 
 @app.post("/formats")
 async def get_all_format(url: Url):
-    search_query_url = Control.is_youtube_search_query_url(url.url
-    )
+    search_query_url = Control.is_youtube_search_query_url(url.url)
     empty_url = (url.url == '')
     valid_url = Control.is_url(url.url)
     playlist_url = Control.is_playlist_url(url.url)
