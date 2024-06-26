@@ -1,19 +1,8 @@
 import React, { useRef } from "react";
 import downloadVideo from "../hooks/downloadVideo";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  setAllUrls,
-  setVideObj,
-  setVideoUrl,
-  setPlaying,
-  setVideoPlaying,
-  setVideoLoading,
-  setVideoReady,
-  setDuration,
-  setError,
-  setErrorDuration,
-  setDownloadPercent,
-} from "../state/videoSlice";
+import controlTime from "../functions/controlTime";
+import handleDownload from "../functions/handleDownload";
 
 function DownloadBtn({ inputRef, getVideoRef, videoProp }) {
   const downloadBtnRef = useRef(null);
@@ -22,61 +11,13 @@ function DownloadBtn({ inputRef, getVideoRef, videoProp }) {
     (state) => state.video
   );
 
-  function handleDownload() {
-    dispatch(setPlaying(false));
-    dispatch(setVideoLoading(true));
-    dispatch(setVideoReady(false));
-    dispatch(setDownloadPercent(""));
-    disableHandle([downloadBtnRef, getVideoRef], true);
-    localStorage.removeItem("downloadProgress");
-    localStorage.removeItem("downloadCompleted");
-    const maxAttempts = 20;
-    let attemptCount = 0;
-    let completed = false;
-    let find = false;
-    const interval = setInterval(() => {
-      const progressDataString = localStorage.getItem("downloadProgress");
-      if (progressDataString) {
-        const downloadCompletedString =
-          localStorage.getItem("downloadCompleted");
-        const progressData = JSON.parse(progressDataString);
-        dispatch(setDownloadPercent(progressData.downloadProgress));
-        find = true;
-
-        if (downloadCompletedString) {
-          completed = true;
-          find = false;
-          clearInterval(interval);
-          dispatch(setVideoLoading(false));
-          dispatch(setVideoReady(true));
-          dispatch(setDownloadPercent(""));
-          localStorage.removeItem("downloadProgress");
-          localStorage.removeItem("downloadCompleted");
-          disableHandle([downloadBtnRef, getVideoRef], false);
-          return;
-        }
-      }
-
-      if (!completed && !find) {
-        attemptCount += 1;
-        if (attemptCount >= maxAttempts) {
-          dispatch(setVideoLoading(false));
-          dispatch(setVideoReady(true));
-          dispatch(setDownloadPercent(""));
-          localStorage.removeItem("downloadProgress");
-          localStorage.removeItem("downloadCompleted");
-          disableHandle([downloadBtnRef, getVideoRef], false);
-          dispatch(setError("This is not valid url or video not fetched"));
-          dispatch(setErrorDuration(3000));
-          inputRef.current.value = "";
-          dispatch(setVideObj({}));
-          dispatch(setAllUrls([]));
-          dispatch(setVideoUrl(""));
-          clearInterval(interval);
-        }
-      }
-    }, 1000);
-  }
+  const checkCut = () => {
+    if (videoProp) {
+      return controlTime(startInput, endInput);
+    } else {
+      return true;
+    }
+  };
 
   return (
     <button
@@ -87,8 +28,9 @@ function DownloadBtn({ inputRef, getVideoRef, videoProp }) {
           ? false
           : true &&
             videoReady &&
+            checkCut &&
             downloadVideo(videoProp, startInput, endInput, videObj) &&
-            handleDownload();
+            handleDownload(dispatch, downloadBtnRef, getVideoRef, inputRef);
       }}
     >
       Download

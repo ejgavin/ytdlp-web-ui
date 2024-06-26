@@ -8,12 +8,10 @@ import {
 } from "react-icons/io5";
 import Error from "./Error";
 import disableHandle from "../functions/disableHandle";
-
+import controlTime from "../functions/controlTime";
 import {
   setCurrentTime,
   setPlaying,
-  setError,
-  setErrorDuration,
   setStartInput,
   setEndInput,
 } from "../state/videoSlice";
@@ -81,11 +79,12 @@ function VideoCut({ videoRef, inputRef }) {
   }, [videoReady]);
 
   function handleCurrent(e) {
+    const time = currentTime.toFixed(2);
     if (e.target.dataset.ref === "start") {
-      dispatch(setStartInput(currentTime.toFixed(2)));
+      dispatch(setStartInput(time));
       startInputRef.current.value = startInput;
     } else if (e.target.dataset.ref === "end") {
-      dispatch(setEndInput(currentTime.toFixed(2)));
+      dispatch(setEndInput(time));
       endInputRef.current.value = endInput;
     }
   }
@@ -118,24 +117,6 @@ function VideoCut({ videoRef, inputRef }) {
       seekTo(startInputRef.current.value);
       dispatch(setPlaying(true));
       setTimeout(stopFunc, stopTime);
-    }
-  }
-
-  function controlTime() {
-    if (
-      endInputRef.current.value < startInputRef.current.value ||
-      parseFloat(endInputRef.current.value) ==
-        parseFloat(startInputRef.current.value)
-    ) {
-      dispatch(
-        setError(
-          "the end second cannot be less than or equal to the start second"
-        )
-      );
-      dispatch(setErrorDuration(3000));
-      return false;
-    } else {
-      return true;
     }
   }
 
@@ -226,26 +207,6 @@ function VideoCut({ videoRef, inputRef }) {
         >
           Preview
         </button>
-        {/* <button
-          ref={downloadClipBtn}
-          className="rounded-full text-offwhite-200 border-2 border-solid border-bgray-100 bg-bgray-200 w-full h-16 font-bold hover:bg-opacity-60 active:bg-opacity-50  focus:outline-none disabled:cursor-not-allowed"
-          onClick={() =>
-            inputRef.current.value == ""
-              ? false
-              : true &&
-                videoReady &&
-                controlTime() &&
-                downloadVideo(
-                  true,
-                  startInputRef.current.value,
-                  endInputRef.current.value,
-                  videObj
-                ) &&
-                handleDownload()
-          }
-        >
-          Download Clip
-        </button> */}
         <DownloadBtn inputRef={inputRef} videoRef={videoRef} videoProp={true} />
       </div>
       <div>{error && <Error />}</div>

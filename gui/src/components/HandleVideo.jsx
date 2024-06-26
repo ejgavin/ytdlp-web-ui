@@ -3,11 +3,12 @@ import { useSelector, useDispatch } from "react-redux";
 import VideoFormats from "./VideoFormats";
 import ReactPlayer from "react-player";
 import VideoCut from "./VideoCut";
-import downloadVideo from "../hooks/downloadVideo";
 import getAllFormats from "../hooks/getAllFormats";
+import getFormats from "../hooks/getFormats";
+import parseUrl from "../functions/parseUrl";
 import Error from "./Error";
 import Loading from "./Loading";
-import disableHandle from "../functions/disableHandle";
+import DownloadBtn from "./DownloadBtn";
 import "./../styles.css";
 import {
   setAllUrls,
@@ -20,9 +21,7 @@ import {
   setDuration,
   setError,
   setErrorDuration,
-  setDownloadPercent,
 } from "../state/videoSlice";
-import DownloadBtn from "./DownloadBtn";
 
 export function HandleVideo() {
   const dispatch = useDispatch();
@@ -34,33 +33,43 @@ export function HandleVideo() {
   async function setVideoFormats() {
     dispatch(setPlaying(false));
     dispatch(setVideoReady(false));
-    disableHandle([getVideoRef], true);
+    getVideoRef.current.disabled = true;
     dispatch(setError(null));
     dispatch(setVideoLoading(true));
     const url = inputRef.current.value;
     try {
-      const videoArr = await getAllFormats(url);
-      const best_quality_video = videoArr[0];
-      const objVideo = videoArr[1];
-      const allArr = videoArr[2];
-      if (best_quality_video && objVideo && allArr) {
-        dispatch(setVideoUrl(best_quality_video));
-        dispatch(setVideObj(objVideo));
-        dispatch(setAllUrls(allArr));
-        // downloadBtnRef.current.disabled = false;
+      const taskId = await getAllFormats(url);
+      if (taskId) {
+        const raw_formats = await getFormats(taskId);
+        console.log(raw_formats);
+        if (raw_formats) {
+          const [best_quality_video, objVideo, allArr] = await parseUrl(
+            raw_formats,
+            url
+          );
+          dispatch(setVideoUrl(best_quality_video));
+          dispatch(setVideObj(objVideo));
+          dispatch(setAllUrls(allArr));
+        } else {
+          handleError();
+        }
       }
+      // downloadBtnRef.current.disabled = false;
     } catch (error) {
-      console.log(error);
-      dispatch(setError("This is not valid url or video not fetched"));
-      dispatch(setErrorDuration(3000));
-      inputRef.current.value = "";
-      dispatch(setVideObj({}));
-      dispatch(setAllUrls([]));
-      dispatch(setVideoUrl(""));
+      handleError();
     } finally {
       getVideoRef.current.disabled = false;
       dispatch(setVideoLoading(false));
     }
+  }
+
+  function handleError() {
+    dispatch(setError("This is not valid url or video not fetched"));
+    dispatch(setErrorDuration(3000));
+    inputRef.current.value = "";
+    dispatch(setVideObj({}));
+    dispatch(setAllUrls([]));
+    dispatch(setVideoUrl(""));
   }
 
   function handleReady() {
