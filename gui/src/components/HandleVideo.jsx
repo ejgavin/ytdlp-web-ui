@@ -9,7 +9,6 @@ import Error from "./Error";
 import Loading from "./Loading";
 import disableHandle from "../functions/disableHandle";
 import "./../styles.css";
-
 import {
   setAllUrls,
   setVideObj,
@@ -23,28 +22,19 @@ import {
   setErrorDuration,
   setDownloadPercent,
 } from "../state/videoSlice";
+import DownloadBtn from "./DownloadBtn";
 
 export function HandleVideo() {
   const dispatch = useDispatch();
-  const {
-    videObj,
-    videourl,
-    playing,
-    videoLoading,
-    videoReady,
-    error,
-    downloadPercent,
-  } = useSelector((state) => state.video);
-
+  const { videourl, playing, error } = useSelector((state) => state.video);
   const inputRef = useRef(null);
   const videoRef = useRef(null);
-  const downloadBtnRef = useRef(null);
   const getVideoRef = useRef(null);
 
   async function setVideoFormats() {
     dispatch(setPlaying(false));
     dispatch(setVideoReady(false));
-    disableHandle([downloadBtnRef, getVideoRef], true);
+    disableHandle([getVideoRef], true);
     dispatch(setError(null));
     dispatch(setVideoLoading(true));
     const url = inputRef.current.value;
@@ -57,9 +47,10 @@ export function HandleVideo() {
         dispatch(setVideoUrl(best_quality_video));
         dispatch(setVideObj(objVideo));
         dispatch(setAllUrls(allArr));
-        downloadBtnRef.current.disabled = false;
+        // downloadBtnRef.current.disabled = false;
       }
     } catch (error) {
+      console.log(error);
       dispatch(setError("This is not valid url or video not fetched"));
       dispatch(setErrorDuration(3000));
       inputRef.current.value = "";
@@ -75,62 +66,6 @@ export function HandleVideo() {
   function handleReady() {
     dispatch(setVideoLoading(false));
     dispatch(setVideoReady(true));
-  }
-
-  function handleDownload() {
-    dispatch(setPlaying(false));
-    dispatch(setVideoLoading(true));
-    dispatch(setVideoReady(false));
-    dispatch(setDownloadPercent(""));
-    disableHandle([downloadBtnRef, getVideoRef], true);
-    localStorage.removeItem("downloadProgress");
-    localStorage.removeItem("downloadCompleted");
-    const maxAttempts = 20;
-    let attemptCount = 0;
-    let completed = false;
-    let find = false;
-    const interval = setInterval(() => {
-      const progressDataString = localStorage.getItem("downloadProgress");
-      if (progressDataString) {
-        const downloadCompletedString =
-          localStorage.getItem("downloadCompleted");
-        const progressData = JSON.parse(progressDataString);
-        dispatch(setDownloadPercent(progressData.downloadProgress));
-        find = true;
-
-        if (downloadCompletedString) {
-          completed = true;
-          find = false;
-          clearInterval(interval);
-          dispatch(setVideoLoading(false));
-          dispatch(setVideoReady(true));
-          dispatch(setDownloadPercent(""));
-          localStorage.removeItem("downloadProgress");
-          localStorage.removeItem("downloadCompleted");
-          disableHandle([downloadBtnRef, getVideoRef], false);
-          return;
-        }
-      }
-
-      if (!completed && !find) {
-        attemptCount += 1;
-        if (attemptCount >= maxAttempts) {
-          dispatch(setVideoLoading(false));
-          dispatch(setVideoReady(true));
-          dispatch(setDownloadPercent(""));
-          localStorage.removeItem("downloadProgress");
-          localStorage.removeItem("downloadCompleted");
-          disableHandle([downloadBtnRef, getVideoRef], false);
-          dispatch(setError("This is not valid url or video not fetched"));
-          dispatch(setErrorDuration(3000));
-          inputRef.current.value = "";
-          dispatch(setVideObj({}));
-          dispatch(setAllUrls([]));
-          dispatch(setVideoUrl(""));
-          clearInterval(interval);
-        }
-      }
-    }, 1000);
   }
 
   return (
@@ -171,28 +106,15 @@ export function HandleVideo() {
           >
             Get Video
           </button>
-          <button
-            ref={downloadBtnRef}
-            className="rounded-full border-2 border-solid border-bgray-100 p-4 font-bold text-center w-full h-16 text-offwhite-200 bg-bgray-200 hover:bg-opacity-60 active:bg-opacity-50 focus:outline-none disabled:cursor-not-allowed"
-            onClick={() => {
-              inputRef.current.value == ""
-                ? false
-                : true &&
-                  videoReady &&
-                  downloadVideo(false, null, null, videObj) &&
-                  handleDownload();
-            }}
-          >
-            Download
-          </button>
+          <DownloadBtn
+            inputRef={inputRef}
+            getVideoRef={getVideoRef}
+            videoProp={false}
+          />
           <VideoFormats />
         </div>
         <div className="rounded-full flex flex-col">
-          <VideoCut
-            videoRef={videoRef}
-            disableHandle={disableHandle}
-            handleDownload={handleDownload}
-          />
+          <VideoCut videoRef={videoRef} inputRef={inputRef} />
         </div>
       </div>
       <div>{error && <Error />}</div>

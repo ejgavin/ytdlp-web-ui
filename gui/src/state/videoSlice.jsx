@@ -13,6 +13,8 @@ const initialState = {
   errorDuration: 3000,
   downloadPercent: "",
   currentTime: 0,
+  startInput: 0,
+  endInput: 0,
 };
 
 export const videoSlice = createSlice({
@@ -55,6 +57,12 @@ export const videoSlice = createSlice({
     setCurrentTime: (state, action) => {
       state.currentTime = action.payload;
     },
+    setStartInput: (state, action) => {
+      state.startInput = action.payload;
+    },
+    setEndInput: (state, action) => {
+      state.endInput = action.payload;
+    },
   },
 });
 
@@ -71,6 +79,8 @@ export const {
   setErrorDuration,
   setDownloadPercent,
   setCurrentTime,
+  setStartInput,
+  setEndInput,
 } = videoSlice.actions;
 
 export default videoSlice.reducer;

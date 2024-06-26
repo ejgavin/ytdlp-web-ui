@@ -7,16 +7,20 @@ import {
   IoPlayForward,
 } from "react-icons/io5";
 import Error from "./Error";
-import downloadVideo from "../hooks/downloadVideo";
+import disableHandle from "../functions/disableHandle";
+
 import {
   setCurrentTime,
   setPlaying,
   setError,
   setErrorDuration,
+  setStartInput,
+  setEndInput,
 } from "../state/videoSlice";
+import DownloadBtn from "./DownloadBtn";
 
-function VideoCut({ videoRef, disableHandle, handleDownload }) {
-  const inputRef = useRef(null);
+function VideoCut({ videoRef, inputRef }) {
+  const inputCurrentTimeRef = useRef(null);
   const startInputRef = useRef(null);
   const endInputRef = useRef(null);
   const backwardRef = useRef(null);
@@ -29,16 +33,15 @@ function VideoCut({ videoRef, disableHandle, handleDownload }) {
   const endBtn = useRef(null);
 
   const dispatch = useDispatch();
-  const { videObj, videoReady, currentTime, duration, error } = useSelector(
-    (state) => state.video
-  );
+  const { videoReady, currentTime, duration, error, startInput, endInput } =
+    useSelector((state) => state.video);
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (videoRef.current && videoReady) {
         const currentTime = videoRef.current.getCurrentTime();
         dispatch(setCurrentTime(currentTime));
-        inputRef.current.value = currentTime.toFixed(2);
+        inputCurrentTimeRef.current.value = currentTime.toFixed(2);
       }
     }, 10);
 
@@ -79,9 +82,11 @@ function VideoCut({ videoRef, disableHandle, handleDownload }) {
 
   function handleCurrent(e) {
     if (e.target.dataset.ref === "start") {
-      startInputRef.current.value = inputRef.current.value;
+      dispatch(setStartInput(currentTime.toFixed(2)));
+      startInputRef.current.value = startInput;
     } else if (e.target.dataset.ref === "end") {
-      endInputRef.current.value = inputRef.current.value;
+      dispatch(setEndInput(currentTime.toFixed(2)));
+      endInputRef.current.value = endInput;
     }
   }
 
@@ -154,7 +159,7 @@ function VideoCut({ videoRef, disableHandle, handleDownload }) {
           <IoChevronBack className="self-center" />
         </button>
         <input
-          ref={inputRef}
+          ref={inputCurrentTimeRef}
           className="rounded-full font-bold text-center text-offwhite-200 bg-bgray-200 border-2 border-solid border-bgray-100 w-full h-16 placeholder:text-bgray-150 focus:outline-none focus:outline-offwhite-200 select:outline-none select:outline-offwhite-200"
           placeholder="Current Time"
           type="text"
@@ -221,7 +226,7 @@ function VideoCut({ videoRef, disableHandle, handleDownload }) {
         >
           Preview
         </button>
-        <button
+        {/* <button
           ref={downloadClipBtn}
           className="rounded-full text-offwhite-200 border-2 border-solid border-bgray-100 bg-bgray-200 w-full h-16 font-bold hover:bg-opacity-60 active:bg-opacity-50  focus:outline-none disabled:cursor-not-allowed"
           onClick={() =>
@@ -240,7 +245,8 @@ function VideoCut({ videoRef, disableHandle, handleDownload }) {
           }
         >
           Download Clip
-        </button>
+        </button> */}
+        <DownloadBtn inputRef={inputRef} videoRef={videoRef} videoProp={true} />
       </div>
       <div>{error && <Error />}</div>
     </div>
