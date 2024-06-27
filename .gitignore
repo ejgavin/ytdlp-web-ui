@@ -4,4 +4,5 @@ fastApi/app/__pycache__
 fastApi/pyvenv.cfg
 fastApi/.env
 fastApi/Lib
+fastApi/start.sh
 redis.conf
