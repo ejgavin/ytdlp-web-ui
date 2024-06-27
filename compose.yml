@@ -3,13 +3,13 @@ services:
     restart: always
     depends_on: 
       - api
-    build: ./backend
+    build: ./frontend
     ports:
       - "5173:5173"
     
 
   api: 
-    build: ./frontend
+    build: ./backend
     ports: 
       - "8000:8000"
   
