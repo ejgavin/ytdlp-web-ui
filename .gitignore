@@ -1,8 +1,9 @@
-fastApi/Scripts
-fastApi/share
-fastApi/app/__pycache__
-fastApi/pyvenv.cfg
-fastApi/.env
-fastApi/Lib
-fastApi/start.sh
+backend/Scripts
+backend/share
+backend/app/__pycache__
+backend/pyvenv.cfg
+backend/.env
+backend/Lib
+backend/start.sh
+frontend/public
 redis.conf

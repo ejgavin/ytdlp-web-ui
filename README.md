@@ -5,7 +5,9 @@
   </a>
 </p>
 
-> This project provides a user-friendly web interface for the yt-dlp command-line tool core features. It allows users to download and process videos from various platforms and track the download progress with ease.
+> This project provides a user-friendly web interface for the basic features of the yt-dlp command-line tool. It allows users to download and process videos from various platforms with ease.
+
+![ytdlp-web-ui](image.png)
 
 ## Features
 
@@ -15,9 +17,6 @@
 - Responsive design for desktop and mobile use
 - Video downloading from multiple platforms
 - Video trimming and cutting capabilities
-- Subtitle download option
-- Option to download videos without preview
-- Basic and advanced video format selection
 
 ## Technologies Used
 
@@ -47,41 +46,58 @@ That's it! Everything runs within Docker containers, so you don't need to instal
 
 ## Getting Started
 
-1. Install Docker:
+**1. Install Docker:**
 
-   ```
-   https://docs.docker.com/get-docker/
-   ```
+[Get Docker](https://docs.docker.com/get-docker/)
 
-2. Clone the repository:
+**2. Clone the repository:**
 
-   ```
-   git clone https://github.com/sametalkis/ytdlp-web-ui.git
-   cd ytdlp-web-ui
-   ```
+```
+git clone https://github.com/sametalkis/ytdlp-web-ui.git
+cd ytdlp-web-ui
+```
 
-3. Configure the necessary files:
+**3. Configure the Necessary Files:**
 
-   - `redis.conf.example` Enter password in quotes and delete .example
-   - `gui/env.example` Enter your own host IP or leave it as localhost and delete .example
-   - `fastApi/.env.example` Delete <REDIS_PASS> and enter the password you entered in redis conf here without quotation marks and delete .example
-   - `fastApi/start.sh` Delete <REDIS_PASS> and enter the password you entered in redis conf here without quotation marks
+**`redis.conf.example`:**
 
-4. Start the application using Docker Compose:
-   ```
-   docker-compose up
-   ```
+- If you want to change the password, enter the new password in quotes (do not use special characters).
+- If you want to leave it as the default, rename the file by removing `.example` from the filename.
+
+**`gui/env.example`:**
+
+- Enter your own host IP address or leave it as `localhost` and rename the file by removing `.example` from the filename.
+
+**`fastApi/.env.example`:**
+
+- If you have not changed the Redis password, rename the file by removing `.example` from the filename.
+- If you have changed the password, enter the new password in this file.
+
+**`fastApi/start.sh.example`:**
+
+- If you have not changed the Redis password, rename the file by removing `.example` from the filename.
+- If you have changed the password, enter the new password in this file.
+
+**4. Start the application using Docker Compose:**
+
+```
+docker-compose up
+```
+
+**5. Open the Web UI:**
+
+[http://localhost:5173](http://localhost:5173)
 
 ## Roadmap
 
 I'm constantly working to improve ytdlp-web-ui. Here are some features and improvements I'm planning:
 
 - [ ] Implement a light theme
-- [ ] Batch Download capability
+- [ ] Batch download capability
 - [ ] Introduce cookie and proxy options to handle errors on certain sites
 - [ ] Implement rate limiting and authentication mechanisms for the API
 - [ ] Enhance video format selection with distinct basic and advanced options
-- [ ] To make it publishable on the web
+- [ ] Make it publishable on the web
 - [ ] Add more accessibility features
 - [ ] Refactor the codebase to be cleaner and more object-oriented
 
