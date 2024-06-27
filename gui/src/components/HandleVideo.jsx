@@ -41,7 +41,6 @@ export function HandleVideo() {
       const taskId = await getAllFormats(url);
       if (taskId) {
         const raw_formats = await getFormats(taskId);
-        console.log(raw_formats);
         if (raw_formats) {
           const [best_quality_video, objVideo, allArr] = await parseUrl(
             raw_formats,

@@ -10,7 +10,6 @@ async function getAllFormats(url) {
     if (response.data.task_id) {
       const status = await getFormatStatus(response.data.task_id);
       if (status) {
-        console.log(response);
         return response.data.task_id;
       }
     }

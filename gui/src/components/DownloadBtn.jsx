@@ -3,6 +3,7 @@ import downloadVideo from "../hooks/downloadVideo";
 import { useSelector, useDispatch } from "react-redux";
 import controlTime from "../functions/controlTime";
 import handleDownload from "../functions/handleDownload";
+import { setError } from "../state/videoSlice";
 
 function DownloadBtn({ inputRef, getVideoRef, videoProp }) {
   const downloadBtnRef = useRef(null);
@@ -12,11 +13,11 @@ function DownloadBtn({ inputRef, getVideoRef, videoProp }) {
   );
 
   const checkCut = () => {
-    const checkTotal = parseInt(startInput) + parseInt(endInput);
-    if (videoProp && checkTotal) {
-      console.log(controlTime);
-      return controlTime(startInput, endInput);
-    } else if (videoProp == false) {
+    const start = parseInt(startInput);
+    const end = parseInt(endInput);
+    const checkTotal = start + end;
+
+    if (checkTotal && controlTime(start, end)) {
       return true;
     } else {
       return false;
@@ -31,16 +32,25 @@ function DownloadBtn({ inputRef, getVideoRef, videoProp }) {
     }
   }, [videoReady]);
 
+  function handleButtonClick() {
+    if (inputRef.current.value !== "" && videoReady) {
+      if (!videoProp) {
+        handleDownload(dispatch, downloadBtnRef, getVideoRef, inputRef);
+        downloadVideo(videoProp, null, null, videObj);
+      } else if (videoProp && checkCut()) {
+        handleDownload(dispatch, downloadBtnRef, getVideoRef, inputRef);
+        downloadVideo(videoProp, startInput, endInput, videObj);
+      } else {
+        setError("Video not fetched or not valid time");
+      }
+    }
+  }
+
   return (
     <button
       ref={downloadBtnRef}
       className="rounded-full border-2 border-solid border-bgray-100 p-4 font-bold text-center w-full h-16 text-offwhite-200 bg-bgray-200 hover:bg-opacity-60 active:bg-opacity-50 focus:outline-none disabled:cursor-not-allowed"
-      onClick={() => {
-        if (inputRef.current.value !== "" && videoReady && checkCut()) {
-          handleDownload(dispatch, downloadBtnRef, getVideoRef, inputRef);
-          downloadVideo(videoProp, startInput, endInput, videObj);
-        }
-      }}
+      onClick={handleButtonClick}
     >
       Download
     </button>
