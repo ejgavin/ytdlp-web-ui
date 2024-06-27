@@ -17,8 +17,18 @@ function handleDownload(dispatch, downloadBtnRef, getVideoRef, inputRef) {
   let completed = false;
   let find = false;
 
+  dispatch(setPlaying(false));
+  dispatch(setVideoLoading(true));
+  dispatch(setVideoReady(false));
+  dispatch(setDownloadPercent(""));
+  disableHandle([downloadBtnRef, getVideoRef], true);
+
+  localStorage.removeItem("downloadProgress");
+  localStorage.removeItem("downloadCompleted");
+
   const handleInterval = () => {
     const progressDataString = localStorage.getItem("downloadProgress");
+
     if (progressDataString) {
       const downloadCompletedString = localStorage.getItem("downloadCompleted");
       const progressData = JSON.parse(progressDataString);
@@ -49,14 +59,6 @@ function handleDownload(dispatch, downloadBtnRef, getVideoRef, inputRef) {
   };
 
   const interval = setInterval(handleInterval, 1000);
-
-  dispatch(setPlaying(false));
-  dispatch(setVideoLoading(true));
-  dispatch(setVideoReady(false));
-  dispatch(setDownloadPercent(""));
-  disableHandle([downloadBtnRef, getVideoRef], true);
-  localStorage.removeItem("downloadProgress");
-  localStorage.removeItem("downloadCompleted");
 }
 
 function handleDownloadComplete(dispatch, downloadBtnRef, getVideoRef) {

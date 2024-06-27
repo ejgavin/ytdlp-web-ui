@@ -50,11 +50,8 @@ export function HandleVideo() {
           dispatch(setVideoUrl(best_quality_video));
           dispatch(setVideObj(objVideo));
           dispatch(setAllUrls(allArr));
-        } else {
-          handleError();
         }
       }
-      // downloadBtnRef.current.disabled = false;
     } catch (error) {
       handleError();
     } finally {
