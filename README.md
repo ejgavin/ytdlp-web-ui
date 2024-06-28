@@ -23,7 +23,6 @@
 - Frontend:
   - Vite.js
   - React
-  - React Redux
   - React Player
   - Tailwind CSS
 - Backend:
